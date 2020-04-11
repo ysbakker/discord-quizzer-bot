@@ -19,7 +19,7 @@ client.on('ready', async () => {
     await client.user.setPresence({
       status: 'online',
       activity: {
-        name: 'Trivia | !vraag',
+        name: 'Trivia | !question',
         type: 'PLAYING',
       },
     });
@@ -51,8 +51,8 @@ client.on('message', async msg => {
 
   if (cmd.length === 0) return;
 
-  let command = client.commands.get(cmd);
-  if (!command) command = client.commands.get(client.aliases.get(cmd));
+  const command =
+    client.commands.get(cmd) || client.commands.get(client.aliases.get(cmd));
 
   if (command) await command.run(client, msg, args);
 });

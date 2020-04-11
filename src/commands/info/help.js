@@ -5,7 +5,7 @@ module.exports = {
   name: 'help',
   aliases: ['h'],
   category: 'info',
-  description: 'Returns all commands, or one specific command info',
+  description: `Does show the available commands.`,
   run: async (client, message, args) => {
     if (args[0]) {
       return getCommand(client, message, args[0]);
