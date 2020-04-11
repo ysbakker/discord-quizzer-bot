@@ -13,7 +13,29 @@ const Question = mongoose.model('Question');
 
 const questionnaires = [
   { key: 1, id: 9, value: 'General Knowledge' },
-  { key: 2, id: 21, value: 'Sports' },
+  { key: 2, id: 10, value: 'Entertainment: Books' },
+  { key: 3, id: 11, value: 'Entertainment: Film' },
+  { key: 4, id: 12, value: 'Entertainment: Music' },
+  { key: 5, id: 13, value: 'Entertainment: Musicals & Theatres' },
+  { key: 6, id: 14, value: 'Entertainment: Television' },
+  { key: 7, id: 15, value: 'Entertainment: Video Games' },
+  { key: 8, id: 16, value: 'Entertainment: Board Games' },
+  { key: 9, id: 17, value: 'Science & Nature' },
+  { key: 10, id: 18, value: 'Science: Computers' },
+  { key: 11, id: 19, value: 'Science: Mathematics' },
+  { key: 12, id: 20, value: 'Mythology' },
+  { key: 13, id: 21, value: 'Sports' },
+  { key: 14, id: 22, value: 'Geography' },
+  { key: 15, id: 23, value: 'History' },
+  { key: 16, id: 24, value: 'Politics' },
+  { key: 17, id: 25, value: 'Art' },
+  { key: 18, id: 26, value: 'Celebrities' },
+  { key: 19, id: 27, value: 'Animals' },
+  { key: 20, id: 28, value: 'Vehicles' },
+  { key: 21, id: 29, value: 'Entertainment: Comics' },
+  { key: 22, id: 30, value: 'Science: Gadgets' },
+  { key: 23, id: 31, value: 'Entertainment: Japanese Anime & Manga' },
+  { key: 24, id: 32, value: 'Entertainment: Cartoon & Animations' },
 ];
 
 module.exports = {
