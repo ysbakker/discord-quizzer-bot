@@ -24,14 +24,11 @@ client.on('ready', async () => {
       },
     });
 
-    await mongoose.connect(
-      `mongodb://${MONGODB_HOST}:${MONGODB_PORT}/${DB_NAME}`,
-      {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        useFindAndModify: false,
-      }
-    );
+    await mongoose.connect(`mongodb://${MONGODB_HOST}:${MONGODB_PORT}/${DB_NAME}`, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useFindAndModify: false,
+    });
 
     console.log(`Logged in as ${client.user.tag}!`);
   } catch (e) {
@@ -51,9 +48,7 @@ client.on('message', async msg => {
 
   if (cmd.length === 0) return;
 
-  const command =
-    client.commands.get(cmd) || client.commands.get(client.aliases.get(cmd));
-
+  const command = client.commands.get(cmd) || client.commands.get(client.aliases.get(cmd));
   if (command) await command.run(client, msg, args);
 });
 

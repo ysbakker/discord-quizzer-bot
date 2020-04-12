@@ -16,8 +16,16 @@ const User = new mongoose.Schema({
     type: [Questionnaire],
     default: [],
   },
-  active_questionnaire: {
+  activeQuestionnaire: {
     type: Number,
+  },
+  questionsAsked: {
+    type: Number,
+    default: 0,
+  },
+  questionsCorrect: {
+    type: Number,
+    default: 0,
   },
 });
 

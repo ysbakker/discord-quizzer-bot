@@ -10,10 +10,10 @@ const Question = new mongoose.Schema({
   question: {
     type: String,
   },
-  correct_answer: {
+  correctAnswer: {
     type: String,
   },
-  incorrect_answers: {
+  incorrectAnswers: {
     type: [String],
   },
 });

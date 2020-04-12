@@ -3,7 +3,7 @@ require('./question');
 const Question = mongoose.model('Question').schema;
 
 const Questionnaire = new mongoose.Schema({
-  category_id: {
+  categoryId: {
     type: Number,
   },
   category: {

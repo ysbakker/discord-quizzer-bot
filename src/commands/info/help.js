@@ -26,12 +26,7 @@ const getAll = (client, message) => {
   };
 
   const info = client.categories
-    .map(
-      cat =>
-        stripIndents`**${cat[0].toUpperCase() + cat.slice(1)}** \n${commands(
-          cat
-        )}`
-    )
+    .map(cat => stripIndents`**${cat[0].toUpperCase() + cat.slice(1)}** \n${commands(cat)}`)
     .reduce((string, category) => string + '\n' + category);
 
   return message.channel.send(embed.setDescription(info));
@@ -40,18 +35,14 @@ const getAll = (client, message) => {
 const getCommand = (client, message, input) => {
   const embed = new MessageEmbed();
 
-  const cmd =
-    client.commands.get(input.toLowerCase()) ||
-    client.commands.get(client.aliases.get(input.toLowerCase()));
+  const cmd = client.commands.get(input.toLowerCase()) || client.commands.get(client.aliases.get(input.toLowerCase()));
 
   let info = `No information found for command **${input.toLowerCase()}**`;
 
-  if (!cmd)
-    return message.channel.send(embed.setColor('RED').setDescription(info));
+  if (!cmd) return message.channel.send(embed.setColor('RED').setDescription(info));
 
   if (cmd.name) info = `**Command name**: ${cmd.name}`;
-  if (cmd.aliases)
-    info += `\n**Aliases**: ${cmd.aliases.map(a => `\`${a}\``).join(', ')}`;
+  if (cmd.aliases) info += `\n**Aliases**: ${cmd.aliases.map(a => `\`${a}\``).join(', ')}`;
   if (cmd.description) info += `\n**Description**: ${cmd.description}`;
 
   return message.channel.send(embed.setColor('GREEN').setDescription(info));
