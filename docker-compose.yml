@@ -6,7 +6,7 @@ services:
     image: mongo
     expose:
       - '27017'
-    mem_limit: 200m
+    mem_limit: 100m
   quizzer-discord-bot:
     restart: always
     build: .
