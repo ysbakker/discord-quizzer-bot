@@ -1,0 +1,48 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install SSH key
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.DOCKER_VECTORIC_S1 }}
+        known_hosts: ${{ secrets.KNOWN_HOSTS }}
+    - name: Archive artifact and copy to server
+      run: |
+        mkdir ../build
+        cp -TR . ../build
+        tar -czvf deploy.tar.gz ../build/
+        scp deploy.tar.gz $HOST:~/$DIRNAME/
+    - name: Unpack and run
+      run: |
+        ssh -T $HOST "
+        cd $DIRNAME
+        echo 'unpacking archive...'
+        tar -xzf deploy.tar.gz && rm deploy.tar.gz
+        echo 'docker-compose up...'
+        docker-compose -f deploy/docker-compose.yml up -d --build --force-recreate
+        docker system prune -f
+        echo 'clearing ~/$DIRNAME...'
+        rm -rf ~/$DIRNAME/*
+        echo ''
+        echo 'Done!'
+        echo '----------------------'
+        echo ''
+        "
+      env:
+        HOST: ${{ secrets.DOCKER_VECTORIC_SSH }}
+        DIRNAME: ${{ secrets.DOCKER_VECTORIC_DIR }}
