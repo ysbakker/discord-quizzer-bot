@@ -41,7 +41,6 @@ jobs:
         docker-compose -f build/docker-compose.yml up -d --build --force-recreate
         docker system prune -f
         echo 'clearing ~/$DIRNAME...'
-        rm -rf ~/$DIRNAME/*
         echo ''
         echo 'Done!'
         echo '----------------------'
