@@ -27,11 +27,13 @@ jobs:
       run: |
         mkdir ../build
         cp -TR . ../build
+        echo $ENVFILE >> ../build/.env
         tar -czvf deploy.tar.gz ../build/
         scp deploy.tar.gz $HOST:~/$DIRNAME/
       env:
         HOST: ${{ secrets.DOCKER_VECTORIC_SSH }}
         DIRNAME: ${{ secrets.DOCKER_VECTORIC_DIR }}
+        ENVFILE: ${{secrets.DOTENV}}
     - name: Unpack and run
       run: |
         ssh -T $HOST "
