@@ -45,4 +45,4 @@ jobs:
         "
       env:
         HOST: ${{ secrets.DOCKER_VECTORIC_SSH }}
-        DIRNAME: ${{ secrets.DOCKER_VECTORIC_DIR }}
+        DIRNAME: very-temp-dir
