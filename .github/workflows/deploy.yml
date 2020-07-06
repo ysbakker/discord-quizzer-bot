@@ -20,6 +20,7 @@ jobs:
       uses: shimataro/ssh-key-action@v2
       with:
         key: ${{ secrets.DOCKER_VECTORIC_S1 }}
+        name: id_rsa
         known_hosts: ${{ secrets.KNOWN_HOSTS }}
     - name: Archive artifact and copy to server
       run: |
