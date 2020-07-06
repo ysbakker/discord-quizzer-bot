@@ -27,6 +27,9 @@ jobs:
         cp -TR . ../build
         tar -czvf deploy.tar.gz ../build/
         scp deploy.tar.gz $HOST:~/$DIRNAME/
+      env:
+        HOST: ${{ secrets.DOCKER_VECTORIC_SSH }}
+        DIRNAME: ${{ secrets.DOCKER_VECTORIC_DIR }}
     - name: Unpack and run
       run: |
         ssh -T $HOST "
@@ -45,4 +48,4 @@ jobs:
         "
       env:
         HOST: ${{ secrets.DOCKER_VECTORIC_SSH }}
-        DIRNAME: very-temp-dir
+        DIRNAME: ${{ secrets.DOCKER_VECTORIC_DIR }}
