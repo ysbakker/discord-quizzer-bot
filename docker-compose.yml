@@ -1,0 +1,18 @@
+version: '2.4'
+
+services:
+  database:
+    restart: always
+    image: mongo
+    expose:
+      - '27017'
+    mem_limit: 200m
+  quizzer-discord-bot:
+    restart: always
+    build: .
+    image: ysbakker/quizzer-discord-bot
+    env_file:
+      - .env
+    mem_limit: 100m
+    depends_on:
+      - 'database'
