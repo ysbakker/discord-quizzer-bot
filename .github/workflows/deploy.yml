@@ -36,12 +36,11 @@ jobs:
         ssh -T $HOST "
         cd $DIRNAME
         echo 'unpacking archive...'
-        tar -xzf deploy.tar.gz && rm deploy.tar.gz
+        tar -xzf deploy.tar.gz
         echo 'docker-compose up...'
         docker-compose -f deploy/docker-compose.yml up -d --build --force-recreate
         docker system prune -f
         echo 'clearing ~/$DIRNAME...'
-        rm -rf ~/$DIRNAME/*
         echo ''
         echo 'Done!'
         echo '----------------------'
