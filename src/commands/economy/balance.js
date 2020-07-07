@@ -4,7 +4,7 @@ const User = mongoose.model('User');
 
 module.exports = {
   name: 'balance',
-  aliases: ['b', 'bal'],
+  aliases: ['b', 'bal', 'coins', 'coin', 'c'],
   category: 'economy',
   description: 'Displays your current balance.',
   run: async (client, { author, channel }, args) => {

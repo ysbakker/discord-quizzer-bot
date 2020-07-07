@@ -11,8 +11,8 @@ const User = mongoose.model('User');
 const Questionnaire = mongoose.model('Questionnaire');
 const Question = mongoose.model('Question');
 const entities = new Entities();
-const worth = { easy: 50, medium: 75, hard: 100 };
 const { OPENTDB } = process.env;
+const worth = { easy: 50, medium: 75, hard: 100 };
 
 module.exports = {
   name: 'question',
