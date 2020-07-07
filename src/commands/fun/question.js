@@ -114,7 +114,7 @@ const sendQuestion = async (message, user) => {
       .map((choice, i) => {
         const key = String.fromCharCode(65 + i);
         if (choice == question.correctAnswer) question.correctAnswerKey = key;
-        return `**${key}**: ${choice}`;
+        return `**${key}**: ${entities.decode(choice)}`;
       })
       .join('\n');
     const embed = new MessageEmbed()
@@ -150,7 +150,9 @@ const handleGuess = async (message, user, { correctAnswerKey, correctAnswer, dif
 
     if (msg.content.toLowerCase() != correctAnswerKey.toLowerCase()) {
       return await message.reply(
-        `that's not the correct answer... The correct answer is: **${correctAnswerKey}**: ${correctAnswer}.`
+        `that's not the correct answer... The correct answer is: **${correctAnswerKey}**: ${entities.decode(
+          correctAnswer
+        )}.`
       );
     }
 
