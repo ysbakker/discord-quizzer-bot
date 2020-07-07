@@ -136,8 +136,6 @@ const sendQuestion = async (message, user) => {
 const handleGuess = async ({ emojis }, message, user, { correctAnswerKey, correctAnswer, difficulty }) => {
   try {
     const filter = m => m.author.id === message.author.id;
-    const kekw = await emojis.cache.find(({ name }) => name.toLowerCase() == 'kekw');
-    const pogyou = await emojis.cache.find(({ name }) => name.toLowerCase() == 'pogyou');
     const collected = await message.channel.awaitMessages(filter, {
       max: 1,
       time: 15000
@@ -146,17 +144,15 @@ const handleGuess = async ({ emojis }, message, user, { correctAnswerKey, correc
     const replyTime = Math.floor((msg.createdTimestamp - message.createdTimestamp) / 1000);
 
     if (msg.content.toLowerCase() != correctAnswerKey.toLowerCase()) {
-      await message.reply(
+      return await message.reply(
         `that's not the correct answer... The correct answer is: **${correctAnswerKey}**: ${correctAnswer}.`
       );
-      return await message.channel.send(`${kekw}`);
     }
 
     const coins = worth[difficulty] - replyTime * 2;
     user.balance += coins;
     user.questionsCorrect++;
     await message.reply(`that's correct, you earned ${coins} coins!`);
-    await message.channel.send(`${pogyou}`);
   } catch (e) {
     message.reply(`you didn't answer the question in time...`);
     console.error(`Error awaiting reply on question ${e}`);
