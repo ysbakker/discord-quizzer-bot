@@ -11,5 +11,5 @@ module.exports = {
     const user = await User.findOne({ user: author.id });
     if (!user) return channel.send(`${author.username} hasn't played yet.`);
     return channel.send(`${author.username} has ${user.balance} coins.`);
-  },
+  }
 };

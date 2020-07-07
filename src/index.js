@@ -16,18 +16,18 @@ client.categories = fs.readdirSync('./src/commands/');
 
 client.on('ready', async () => {
   try {
+    await mongoose.connect(`mongodb://${MONGODB_HOST}:${MONGODB_PORT}/${DB_NAME}`, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useFindAndModify: false
+    });
+
     await client.user.setPresence({
       status: 'online',
       activity: {
         name: 'Trivia | !question',
-        type: 'PLAYING',
-      },
-    });
-
-    await mongoose.connect(`mongodb://${MONGODB_HOST}:${MONGODB_PORT}/${DB_NAME}`, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useFindAndModify: false,
+        type: 'PLAYING'
+      }
     });
 
     console.log(`Logged in as ${client.user.tag}!`);

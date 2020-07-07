@@ -4,15 +4,15 @@ const Question = mongoose.model('Question').schema;
 
 const Questionnaire = new mongoose.Schema({
   categoryId: {
-    type: Number,
+    type: Number
   },
   category: {
-    type: String,
+    type: String
   },
   questions: {
     type: [Question],
-    default: [],
-  },
+    default: []
+  }
 });
 
 mongoose.model('Questionnaire', Questionnaire);

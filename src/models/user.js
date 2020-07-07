@@ -6,27 +6,27 @@ const Questionnaire = mongoose.model('Questionnaire').schema;
 const User = new mongoose.Schema({
   user: {
     type: String,
-    required: true,
+    required: true
   },
   balance: {
     type: Number,
-    default: 0,
+    default: 0
   },
   questionnaires: {
     type: [Questionnaire],
-    default: [],
+    default: []
   },
   activeQuestionnaire: {
-    type: Number,
+    type: Number
   },
   questionsAsked: {
     type: Number,
-    default: 0,
+    default: 0
   },
   questionsCorrect: {
     type: Number,
-    default: 0,
-  },
+    default: 0
+  }
 });
 
 mongoose.model('User', User);

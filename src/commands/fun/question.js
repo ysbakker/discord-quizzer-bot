@@ -1,4 +1,3 @@
-const fs = require('fs');
 const { MessageEmbed } = require('discord.js');
 const mongoose = require('mongoose');
 const fetch = require('node-fetch');
@@ -10,33 +9,8 @@ require('../../models/question');
 const User = mongoose.model('User');
 const Questionnaire = mongoose.model('Questionnaire');
 const Question = mongoose.model('Question');
-const questionnaires = [
-  { key: 1, id: 9, value: 'General Knowledge' },
-  { key: 2, id: 10, value: 'Entertainment: Books' },
-  { key: 3, id: 11, value: 'Entertainment: Film' },
-  { key: 4, id: 12, value: 'Entertainment: Music' },
-  { key: 5, id: 13, value: 'Entertainment: Musicals & Theatres' },
-  { key: 6, id: 14, value: 'Entertainment: Television' },
-  { key: 7, id: 15, value: 'Entertainment: Video Games' },
-  { key: 8, id: 16, value: 'Entertainment: Board Games' },
-  { key: 9, id: 17, value: 'Science & Nature' },
-  { key: 10, id: 18, value: 'Science: Computers' },
-  { key: 11, id: 19, value: 'Science: Mathematics' },
-  { key: 12, id: 20, value: 'Mythology' },
-  { key: 13, id: 21, value: 'Sports' },
-  { key: 14, id: 22, value: 'Geography' },
-  { key: 15, id: 23, value: 'History' },
-  { key: 16, id: 24, value: 'Politics' },
-  { key: 17, id: 25, value: 'Art' },
-  { key: 18, id: 26, value: 'Celebrities' },
-  { key: 19, id: 27, value: 'Animals' },
-  { key: 20, id: 28, value: 'Vehicles' },
-  { key: 21, id: 29, value: 'Entertainment: Comics' },
-  { key: 22, id: 30, value: 'Science: Gadgets' },
-  { key: 23, id: 31, value: 'Entertainment: Japanese Anime & Manga' },
-  { key: 24, id: 32, value: 'Entertainment: Cartoon & Animations' },
-];
 const worth = { easy: 50, medium: 75, hard: 100 };
+const { OPENTDB } = process.env;
 
 module.exports = {
   name: 'question',
@@ -48,19 +22,21 @@ module.exports = {
     if (!user) user = new User({ user: message.author.id });
 
     if (user.questionnaires.length == 0) {
-      await getQuestionnaire(message);
-      return await selectQuestionnaire(message, user);
+      const questionnaires = await getQuestionnaire(message);
+      return await selectQuestionnaire(message, user, questionnaires);
     }
 
     const question = await sendQuestion(message, user);
     if (question) await handleGuess(client, message, user, question);
 
     await user.save();
-  },
+  }
 };
 
 const getQuestionnaire = async message => {
-  const body = questionnaires.map(questionnaire => `**${questionnaire.key}**: ${questionnaire.value}`).join('\n');
+  const response = await fetch(`${OPENTDB}/api_category.php`);
+  const { trivia_categories } = await response.json();
+  const body = trivia_categories.map((category, index) => `**${index + 1}**: ${category.name}`).join('\n');
 
   const embed = new MessageEmbed()
     .setColor('WHITE')
@@ -69,14 +45,18 @@ const getQuestionnaire = async message => {
     .setDescription(body);
 
   await message.channel.send(embed);
+
+  return trivia_categories;
 };
 
-const selectQuestionnaire = async (message, user) => {
+const selectQuestionnaire = async (message, user, questionnaires) => {
   const filter = m => m.author.id === message.author.id;
   const collected = await message.channel.awaitMessages(filter, { max: 1 });
   const msg = await collected.first().content;
-  const { id } = questionnaires.find(q => q.key == parseInt(msg)) || {};
-  if (!id) return await message.reply(`that's not a correct value, try running the command again...`);
+  const index = parseInt(msg) - 1;
+  if (index >= questionnaires.length)
+    return await message.reply(`that's not a correct value, try running the command again...`);
+  const { id } = questionnaires[index];
   const questionnaire = await fetchQuestionnaire(id, user);
   return await message.reply(
     `the ${questionnaire.category} questionnaire has been added to your collection.\nRun the \`!question\` command to start.`
@@ -84,7 +64,7 @@ const selectQuestionnaire = async (message, user) => {
 };
 
 const fetchQuestionnaire = async (id, user) => {
-  const response = await fetch(`https://opentdb.com/api.php?amount=50&category=${id}&type=multiple`);
+  const response = await fetch(`${OPENTDB}/api.php?amount=50&category=${id}&type=multiple`);
   const data = await response.json();
 
   const questionnaire = new Questionnaire();
@@ -101,6 +81,8 @@ const fetchQuestionnaire = async (id, user) => {
   });
   user.questionnaires.push(questionnaire);
   user.activeQuestionnaire = id;
+
+  await user.save();
 
   return questionnaire;
 };
@@ -157,7 +139,7 @@ const handleGuess = async ({ emojis }, message, user, { correctAnswerKey, correc
     const pogyou = await emojis.cache.find(({ name }) => name.toLowerCase() == 'pogyou');
     const collected = await message.channel.awaitMessages(filter, {
       max: 1,
-      time: 15000,
+      time: 15000
     });
     const msg = await collected.first();
     const replyTime = Math.floor((msg.createdTimestamp - message.createdTimestamp) / 1000);

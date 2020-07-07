@@ -12,7 +12,7 @@ module.exports = {
     } else {
       return getAll(client, message);
     }
-  },
+  }
 };
 
 const getAll = (client, message) => {
