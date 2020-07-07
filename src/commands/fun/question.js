@@ -29,7 +29,7 @@ module.exports = {
     }
 
     const question = await sendQuestion(message, user);
-    if (question) await handleGuess(client, message, user, question);
+    if (question) await handleGuess(message, user, question);
 
     await user.save();
   }
@@ -39,15 +39,12 @@ const getQuestionnaire = async message => {
   const response = await fetch(`${OPENTDB}/api_category.php`);
   const { trivia_categories } = await response.json();
   const body = trivia_categories.map((category, index) => `**${index + 1}**: ${category.name}`).join('\n');
-
   const embed = new MessageEmbed()
     .setColor('WHITE')
     .setAuthor(message.author.username, message.author.displayAvatarURL())
     .setTitle(`Select one questionnaire for free!`)
     .setDescription(body);
-
   await message.channel.send(embed);
-
   return trivia_categories;
 };
 
@@ -59,50 +56,59 @@ const selectQuestionnaire = async (message, user, questionnaires) => {
   if (index >= questionnaires.length)
     return await message.reply(`that's not a correct value, try running the command again...`);
   const { id } = questionnaires[index];
-  const questionnaire = await fetchQuestionnaire(id, user);
+  const questionnaire = await createQuestionnaire(id, user);
   return await message.reply(
     `the ${questionnaire.category} questionnaire has been added to your collection.\nRun the \`!question\` command to start.`
   );
 };
 
-const fetchQuestionnaire = async (id, user) => {
+const fetchQuestions = async id => {
   const response = await fetch(`${OPENTDB}/api.php?amount=50&category=${id}&type=multiple`);
-  const data = await response.json();
+  return await response.json();
+};
 
-  const questionnaire = new Questionnaire();
-  questionnaire.categoryId = id;
-  questionnaire.category = data.results[0].category;
-  data.results.forEach(q => {
+const createQuestions = async results => {
+  const questions = [];
+  results.forEach(q => {
     const question = new Question();
     question.type = q.type;
     question.difficulty = q.difficulty;
     question.question = q.question;
     question.correctAnswer = q.correct_answer;
     question.incorrectAnswers = q.incorrect_answers;
-    questionnaire.questions.push(question);
+    questions.push(question);
   });
+  return questions;
+};
+
+const createQuestionnaire = async (id, user) => {
+  const { results } = await fetchQuestions(id);
+  const questionnaire = new Questionnaire();
+  questionnaire.categoryId = id;
+  questionnaire.category = results[0].category;
+  questionnaire.questions = await createQuestions(results);
   user.questionnaires.push(questionnaire);
   user.activeQuestionnaire = id;
-
   await user.save();
-
   return questionnaire;
 };
 
 const sendQuestion = async (message, user) => {
   try {
-    const { questions, category } = user.questionnaires.find(q => q.categoryId == user.activeQuestionnaire);
-    const questionIndex = Math.floor(Math.random() * questions.length);
-    const question = questions[questionIndex];
-    // TODO: 1. Fix splice bug
-    // const questionObj = questionnaire.questions[questionIndex];
-    // const question = {
-    //   incorrectAnswers: [...questionObj.incorrectAnswers],
-    //   type: questionObj.type,
-    //   difficulty: questionObj.difficulty,
-    //   question: questionObj.question,
-    //   correctAnswer: questionObj.correctAnswer,
-    // };
+    const questionnaire = user.questionnaires.find(q => q.categoryId == user.activeQuestionnaire);
+    if (questionnaire.questions.length <= 0) {
+      const { results } = await fetchQuestions(user.activeQuestionnaire);
+      questionnaire.questions = await createQuestions(results);
+    }
+    const questionIndex = Math.floor(Math.random() * questionnaire.questions.length);
+    const questionObj = questionnaire.questions[questionIndex];
+    const question = {
+      incorrectAnswers: [...questionObj.incorrectAnswers],
+      type: questionObj.type,
+      difficulty: questionObj.difficulty,
+      question: questionObj.question,
+      correctAnswer: questionObj.correctAnswer
+    };
     const answers = shuffle([question.correctAnswer, ...question.incorrectAnswers]);
     const choices = answers
       .map((choice, i) => {
@@ -119,13 +125,12 @@ const sendQuestion = async (message, user) => {
       .addFields(
         { name: `Worth:`, value: `\`${worth[question.difficulty]} coins max.\``, inline: true },
         { name: `Difficulty:`, value: `\`${question.difficulty}\``, inline: true },
-        { name: `Category:`, value: `\`${category}\``, inline: true }
+        { name: `Category:`, value: `\`${questionnaire.category}\``, inline: true }
       )
       .setFooter(`You've got 15 seconds to answer with the correct letter...`);
 
     user.questionsAsked++;
-    // TODO: 1. Fix splice bug
-    // questions.splice(questionIndex, 1);
+    questionnaire.questions.splice(questionIndex, 1);
     await message.channel.send(embed);
     return question;
   } catch (e) {
@@ -133,7 +138,7 @@ const sendQuestion = async (message, user) => {
   }
 };
 
-const handleGuess = async ({ emojis }, message, user, { correctAnswerKey, correctAnswer, difficulty }) => {
+const handleGuess = async (message, user, { correctAnswerKey, correctAnswer, difficulty }) => {
   try {
     const filter = m => m.author.id === message.author.id;
     const collected = await message.channel.awaitMessages(filter, {
@@ -155,6 +160,5 @@ const handleGuess = async ({ emojis }, message, user, { correctAnswerKey, correc
     await message.reply(`that's correct, you earned ${coins} coins!`);
   } catch (e) {
     message.reply(`you didn't answer the question in time...`);
-    console.error(`Error awaiting reply on question ${e}`);
   }
 };
