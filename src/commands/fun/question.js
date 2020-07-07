@@ -2,6 +2,7 @@ const { MessageEmbed } = require('discord.js');
 const mongoose = require('mongoose');
 const fetch = require('node-fetch');
 const shuffle = require('shuffle-array');
+const Entities = require('html-entities').AllHtmlEntities;
 require('../../models/user');
 require('../../models/questionnaire');
 require('../../models/question');
@@ -9,6 +10,7 @@ require('../../models/question');
 const User = mongoose.model('User');
 const Questionnaire = mongoose.model('Questionnaire');
 const Question = mongoose.model('Question');
+const entities = new Entities();
 const worth = { easy: 50, medium: 75, hard: 100 };
 const { OPENTDB } = process.env;
 
@@ -112,7 +114,7 @@ const sendQuestion = async (message, user) => {
     const embed = new MessageEmbed()
       .setColor('WHITE')
       .setAuthor(`${message.author.username}'s question`, message.author.displayAvatarURL())
-      .setTitle(question.question)
+      .setTitle(entities.decode(question.question))
       .setDescription(choices)
       .addFields(
         { name: `Worth:`, value: `\`${worth[question.difficulty]} coins max.\``, inline: true },
@@ -122,7 +124,6 @@ const sendQuestion = async (message, user) => {
       .setFooter(`You've got 15 seconds to answer with the correct letter...`);
 
     user.questionsAsked++;
-    console.log(user.questionsAsked);
     // TODO: 1. Fix splice bug
     // questions.splice(questionIndex, 1);
     await message.channel.send(embed);
