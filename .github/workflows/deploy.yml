@@ -18,6 +18,7 @@ jobs:
           envkey_MONGODB_HOST: database
           envkey_MONGODB_PORT: 27017
           envkey_DB_NAME: quizzer
+          envkey_OPENTDB: https://opentdb.com
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
         with:
