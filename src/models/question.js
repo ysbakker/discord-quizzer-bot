@@ -2,20 +2,20 @@ const mongoose = require('mongoose');
 
 const Question = new mongoose.Schema({
   type: {
-    type: String,
+    type: String
   },
   difficulty: {
-    type: String,
+    type: String
   },
   question: {
-    type: String,
+    type: String
   },
   correctAnswer: {
-    type: String,
+    type: String
   },
   incorrectAnswers: {
-    type: [String],
-  },
+    type: [String]
+  }
 });
 
 mongoose.model('Question', Question);
