@@ -2,61 +2,55 @@
 
 name: CI
 
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
 on:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    branches: [master]
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Make envfile
-      uses: SpicyPizza/create-envfile@v1
-      with:
-        envkey_DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
-        envkey_MONGODB_HOST: database
-        envkey_MONGODB_PORT: 27017
-        envkey_DB_NAME: quizzer
-    - name: Install SSH key
-      uses: shimataro/ssh-key-action@v2
-      with:
-        key: ${{ secrets.DOCKER_VECTORIC_S1 }}
-        name: id_rsa
-        known_hosts: ${{ secrets.KNOWN_HOSTS }}
-    - name: Archive artifact and copy to server
-      run: |
-        mkdir ../build
-        cp -TR . ../build
-        echo $ENVFILE >> ../build/.env
-        tar -czvf deploy.tar.gz ../build/
-        scp deploy.tar.gz $HOST:~/$DIRNAME/
-      env:
-        HOST: ${{ secrets.DOCKER_VECTORIC_SSH }}
-        DIRNAME: ${{ secrets.DOCKER_VECTORIC_DIR }}
-        ENVFILE: ${{secrets.DOTENV}}
-    - name: Unpack and run
-      run: |
-        ssh -T $HOST "
-        cd $DIRNAME
-        echo 'unpacking archive...'
-        tar -xzf deploy.tar.gz
-        echo 'docker-compose up...'
-        docker-compose -f build/docker-compose.yml up -d --build
-        docker system prune -f
-        echo 'clearing ~/$DIRNAME...'
-        rm -rf ~/$DIRNAME/*
-        echo ''
-        echo 'Done!'
-        echo '----------------------'
-        echo ''
-        "
-      env:
-        HOST: ${{ secrets.DOCKER_VECTORIC_SSH }}
-        DIRNAME: ${{ secrets.DOCKER_VECTORIC_DIR }}
+      - uses: actions/checkout@v2
+      - name: Make envfile
+        uses: SpicyPizza/create-envfile@v1
+        with:
+          envkey_DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          envkey_MONGODB_HOST: database
+          envkey_MONGODB_PORT: 27017
+          envkey_DB_NAME: quizzer
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.DOCKER_VECTORIC_S1 }}
+          name: id_rsa
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+      - name: Archive artifact and copy to server
+        run: |
+          mkdir ../build
+          cp -TR . ../build
+          echo $ENVFILE >> ../build/.env
+          tar -czvf deploy.tar.gz ../build/
+          scp deploy.tar.gz $HOST:~/$DIRNAME/
+        env:
+          HOST: ${{ secrets.DOCKER_VECTORIC_SSH }}
+          DIRNAME: ${{ secrets.DOCKER_VECTORIC_DIR }}
+          ENVFILE: ${{secrets.DOTENV}}
+      - name: Unpack and run
+        run: |
+          ssh -T $HOST "
+          cd $DIRNAME
+          echo 'unpacking archive...'
+          tar -xzf deploy.tar.gz
+          echo 'docker-compose up...'
+          docker-compose -f build/docker-compose.yml up -d --build
+          docker system prune -f
+          echo 'clearing ~/$DIRNAME...'
+          rm -rf ~/$DIRNAME/*
+          echo ''
+          echo 'Done!'
+          echo '----------------------'
+          echo ''
+          "
+        env:
+          HOST: ${{ secrets.DOCKER_VECTORIC_SSH }}
+          DIRNAME: ${{ secrets.DOCKER_VECTORIC_DIR }}
